@@ -22,6 +22,14 @@ function initialize() {
         console.warn('PLAYERS_DATA not found. Make sure players.js is loaded.');
     }
     
+    // Load rankings data
+    if (typeof PLAYERS_RANKINGS !== 'undefined') {
+        console.log(`Loaded ${PLAYERS_RANKINGS.length} rankings from rankings.js`);
+        displayPlayerRankings();
+    } else {
+        console.warn('PLAYERS_RANKINGS not found. Make sure rankings.js is loaded.');
+    }
+    
     // Start auto-fetching
     startAutoFetch();
 }
@@ -57,23 +65,59 @@ function hideStatus() {
     statusDiv.style.display = 'none';
 }
 
-// Get player information by ID
-function getPlayerInfo(playerId) {
-    const player = playersData[playerId];
-    if (player) {
-        return {
-            name: `${player.first_name || ''} ${player.last_name || ''}`.trim(),
-            team: player.team || 'Unknown',
-            position: player.position || 'Unknown',
-            fantasyPositions: player.fantasy_positions || []
-        };
+// Find player ID by name in players.js data
+function findPlayerId(playerName) {
+    // Search through all players to find a match
+    for (const [playerId, player] of Object.entries(playersData)) {
+        const fullName = `${player.first_name} ${player.last_name}`.trim();
+        if (fullName === playerName) {
+            return playerId;
+        }
     }
-    return {
-        name: `Player ${playerId}`,
-        team: 'Unknown',
-        position: 'Unknown', 
-        fantasyPositions: []
-    };
+    return 'Not found';
+}
+
+// Display player rankings
+function displayPlayerRankings() {
+    if (!PLAYERS_RANKINGS || PLAYERS_RANKINGS.length === 0) {
+        playerList.innerHTML = '<p>No rankings data available.</p>';
+        return;
+    }
+
+    // Create HTML table for player rankings
+    const tableHtml = `
+        <table class="rankings-table">
+            <thead>
+                <tr>
+                    <th class="rank-number">Rank</th>
+                    <th class="player-name">Player Name</th>
+                    <th class="position">Pos</th>
+                    <th class="tier">Tier</th>
+                    <th class="player-id">Player ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${PLAYERS_RANKINGS.map(player => {
+                    const playerId = findPlayerId(player.name);
+                    const tierClass = `tier-${player.tier}`;
+                    
+                    return `<tr class="${tierClass}">
+                        <td class="rank-number">${player.rank}</td>
+                        <td class="player-name">${player.name}</td>
+                        <td class="position">${player.position}</td>
+                        <td class="tier">${player.tier}</td>
+                        <td class="player-id">${playerId}</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+        </table>
+    `;
+
+    playerList.innerHTML = tableHtml;
+    showStatus(`Successfully loaded ${PLAYERS_RANKINGS.length} player rankings!`, 'success');
+    
+    // Hide status after 3 seconds
+    setTimeout(hideStatus, 3000);
 }
 
 // Fetch draft picks from Sleeper API
@@ -93,7 +137,6 @@ async function fetchDraftStatus() {
             throw new Error('Invalid response format');
         }
 
-        displayDraftedPlayers(picks);
         showStatus(`Successfully loaded ${picks.length} picks! Last updated: ${new Date().toLocaleTimeString()}`, 'success');
 
         // Hide status after 3 seconds
@@ -102,49 +145,7 @@ async function fetchDraftStatus() {
     } catch (error) {
         console.error('Error fetching draft status:', error);
         showStatus(`Error: ${error.message}`, 'error');
-        playerList.innerHTML = '<p>Failed to load drafted players. Check console for details.</p>';
     }
-}
-
-// Display drafted players
-function displayDraftedPlayers(picks) {
-    if (picks.length === 0) {
-        playerList.innerHTML = '<p>No players drafted yet.</p>';
-        return;
-    }
-
-    const playerPicks = picks
-        .filter(pick => pick.player_id) // Only include picks with player_id
-        .map((pick, index) => ({
-            pickNumber: index + 1,
-            playerId: pick.player_id,
-            playerInfo: getPlayerInfo(pick.player_id)
-        }));
-
-    if (playerPicks.length === 0) {
-        playerList.innerHTML = '<p>No players with IDs found in draft picks.</p>';
-        return;
-    }
-
-    // Create HTML for player list with enhanced information
-    const playersHtml = playerPicks
-        .map(pick => {
-            const positions = pick.playerInfo.fantasyPositions.length > 0 
-                ? pick.playerInfo.fantasyPositions.join('/') 
-                : pick.playerInfo.position;
-            
-            return `<div class="player-item">
-                <strong>Pick ${pick.pickNumber}</strong><br>
-                <strong>${pick.playerInfo.name}</strong><br>
-                <span style="color: #666;">
-                    ${positions} - ${pick.playerInfo.team}
-                </span><br>
-                <small style="color: #999;">ID: ${pick.playerId}</small>
-            </div>`;
-        })
-        .join('');
-
-    playerList.innerHTML = playersHtml;
 }
 
 // Event listeners and initialization

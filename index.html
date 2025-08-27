@@ -34,44 +34,101 @@
             color: #721c24;
         }
         
-        .drafted-players {
+        .player-rankings {
             background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
+        .rankings-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 15px;
+            font-size: 14px;
         }
         
-        .player-item {
+        .rankings-table th {
             background-color: #f8f9fa;
-            padding: 12px 16px;
-            border-radius: 6px;
-            border: 1px solid #dee2e6;
-            transition: box-shadow 0.2s ease;
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: bold;
+            color: #495057;
         }
         
-        .player-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        .rankings-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
         }
+        
+        .rankings-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .rank-number {
+            font-weight: bold;
+            color: #495057;
+            text-align: center;
+            width: 50px;
+        }
+        
+        .player-name {
+            font-weight: bold;
+            color: #212529;
+        }
+        
+        .position {
+            color: #6c757d;
+            text-align: center;
+            width: 60px;
+        }
+        
+        .tier {
+            text-align: center;
+            width: 50px;
+            font-weight: bold;
+        }
+        
+        .player-id {
+            color: #999;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: center;
+            width: 100px;
+        }
+        
+        .tier-1 { border-left: 4px solid #dc3545; }
+        .tier-2 { border-left: 4px solid #fd7e14; }
+        .tier-3 { border-left: 4px solid #ffc107; }
+        .tier-4 { border-left: 4px solid #28a745; }
+        .tier-5 { border-left: 4px solid #17a2b8; }
+        .tier-6 { border-left: 4px solid #6f42c1; }
+        .tier-7 { border-left: 4px solid #e83e8c; }
+        .tier-8 { border-left: 4px solid #6c757d; }
+        .tier-9 { border-left: 4px solid #495057; }
+        .tier-10 { border-left: 4px solid #212529; }
+        .tier-11 { border-left: 4px solid #6c757d; }
+        .tier-12 { border-left: 4px solid #6c757d; }
+        .tier-13 { border-left: 4px solid #6c757d; }
+        .tier-14 { border-left: 4px solid #6c757d; }
+        .tier-15 { border-left: 4px solid #6c757d; }
+        .tier-16 { border-left: 4px solid #6c757d; }
     </style>
 </head>
 <body>
-    <div class="drafted-players">
-        <h3>Drafted Players</h3>
+    <div class="player-rankings">
+        <h3>FantasyPros 2025 Draft Rankings</h3>
         <div id="status" class="status" style="display: none;"></div>
-        <div id="playerList" class="player-grid">
-            <p>Loading drafted players...</p>
+        <div id="playerList">
+            <p>Loading player rankings...</p>
         </div>
     </div>
 
-    <!-- Load player data first, then the main app -->
+    <!-- Load player data first, then rankings, then the main app -->
     <script src="players.js"></script>
+    <script src="rankings.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
