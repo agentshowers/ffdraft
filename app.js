@@ -1,11 +1,11 @@
 // CONFIGURATION - Change this to your draft ID
-const DRAFT_ID = '1266518936610930688'; 
+const DRAFT_ID = '1266548829079998464'; 
 
-// Global variables - playersData will be loaded from players.js
+// Global variables
 let playersData = {}; 
+let draftPicksData = []; // Store draft picks data
 
 // DOM elements
-const statusDiv = document.getElementById('status');
 const playerList = document.getElementById('playerList');
 const draftPicksList = document.getElementById('draftPicksList');
 const lastRefreshSpan = document.getElementById('lastRefresh');
@@ -49,9 +49,6 @@ function startAutoFetch() {
 // Fetch draft data from Sleeper API
 async function fetchDraftData() {
     try {
-        statusDiv.textContent = 'Fetching draft data...';
-        statusDiv.className = 'status loading';
-        
         const response = await fetch(`https://api.sleeper.app/v1/draft/${DRAFT_ID}/picks`);
         
         if (!response.ok) {
@@ -60,23 +57,21 @@ async function fetchDraftData() {
         
         const draftPicks = await response.json();
         
-        // Update draft picks display
-        displayDraftPicks(draftPicks);
+        // Store draft picks data globally
+        draftPicksData = draftPicks;
         
-        // Hide status after successful fetch
-        statusDiv.style.display = 'none';
+        // Update both displays
+        displayDraftPicks();
+        displayPlayerRankings();
         
     } catch (error) {
         console.error('Error fetching draft data:', error);
-        statusDiv.textContent = `Error fetching draft data: ${error.message}`;
-        statusDiv.className = 'status error';
-        statusDiv.style.display = 'block';
     }
 }
 
 // Display draft picks in reverse order
-function displayDraftPicks(draftPicks) {
-    if (!draftPicks || draftPicks.length === 0) {
+function displayDraftPicks() {
+    if (!draftPicksData || draftPicksData.length === 0) {
         draftPicksList.innerHTML = '<div class="draft-pick-item">No picks yet...</div>';
         // Update footer
         lastRefreshSpan.textContent = new Date().toLocaleTimeString();
@@ -85,7 +80,7 @@ function displayDraftPicks(draftPicks) {
     }
     
     // Sort picks by pick number in reverse order (most recent first)
-    const sortedPicks = draftPicks.sort((a, b) => b.pick_no - a.pick_no);
+    const sortedPicks = draftPicksData.sort((a, b) => b.pick_no - a.pick_no);
     
     const picksHtml = sortedPicks.map(pick => {
         const playerId = pick.player_id;
@@ -118,7 +113,7 @@ function displayDraftPicks(draftPicks) {
     
     // Update footer information
     lastRefreshSpan.textContent = new Date().toLocaleTimeString();
-    totalPicksSpan.textContent = draftPicks.length.toString();
+    totalPicksSpan.textContent = draftPicksData.length.toString();
 }
 
 // Find player ID by name (for rankings display)
@@ -132,12 +127,29 @@ function findPlayerId(playerName) {
     return null;
 }
 
-// Display player rankings
+// Get list of drafted player IDs
+function getDraftedPlayerIds() {
+    return draftPicksData.map(pick => pick.player_id);
+}
+
+// Display player rankings (filtered by drafted players)
 function displayPlayerRankings() {
     if (!PLAYERS_RANKINGS || PLAYERS_RANKINGS.length === 0) {
         playerList.innerHTML = '<p>No rankings data available.</p>';
         return;
     }
+
+    // Get list of drafted players
+    const draftedPlayerIds = getDraftedPlayerIds();
+    
+    // Filter out drafted players
+    let availablePlayers = PLAYERS_RANKINGS.filter(player => {
+        const playerId = findPlayerId(player.name);
+        if (playerId && draftedPlayerIds.includes(playerId)) {
+            return false; // Filter out drafted players
+        }
+        return true; // Keep available players
+    });
 
     // Create HTML table for player rankings
     const tableHtml = `
@@ -152,7 +164,7 @@ function displayPlayerRankings() {
                 </tr>
             </thead>
             <tbody>
-                ${PLAYERS_RANKINGS.map(player => {
+                ${availablePlayers.map(player => {
                     const playerId = findPlayerId(player.name);
                     const tierClass = `tier-${player.tier}`;
                     return `
@@ -174,4 +186,3 @@ function displayPlayerRankings() {
 
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', initialize);
-
