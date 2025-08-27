@@ -27,6 +27,12 @@ def clean_player_name(name)
   name.gsub(/\s+(Jr\.|Sr\.|II|III|IV|V|VI|VII|VIII|IX|X)\s*$/, '').strip
 end
 
+# Clean position name by converting DST to DEF
+def clean_position_name(position)
+  # Convert DST to DEF for consistency
+  position == 'DST' ? 'DEF' : position
+end
+
 # Parse CSV and convert to JavaScript
 players = []
 CSV.foreach(csv_file, headers: true) do |row|
@@ -34,7 +40,7 @@ CSV.foreach(csv_file, headers: true) do |row|
   rank = row['RK'].to_i
   tier = row['TIERS'].to_i
   name = clean_player_name(row['PLAYER NAME'].strip)
-  position = row['POS'].gsub(/\d+$/, '') # Remove numbers from position (e.g., WR2 -> WR)
+  position = clean_position_name(row['POS'].gsub(/\d+$/, '')) # Remove numbers and convert DST to DEF
 
   # Create player object
   player = {

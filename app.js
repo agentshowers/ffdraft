@@ -1,5 +1,5 @@
 // CONFIGURATION - Change this to your draft ID
-const DRAFT_ID = '1266548829079998464'; 
+const DRAFT_ID = '1257359414734630912'; 
 
 // Global variables
 let playersData = {}; 
@@ -174,12 +174,10 @@ function displayPlayerRankings() {
                     <th class="player-name">Player Name</th>
                     <th class="position">Pos</th>
                     <th class="tier">Tier</th>
-                    <th class="player-id">Player ID</th>
                 </tr>
             </thead>
             <tbody>
                 ${availablePlayers.map(player => {
-                    const playerId = findPlayerId(player.name);
                     const tierClass = `tier-${player.tier}`;
                     const positionClass = `position-${player.position}`;
                     return `
@@ -188,7 +186,6 @@ function displayPlayerRankings() {
                             <td class="player-name">${player.name}</td>
                             <td class="position">${player.position}</td>
                             <td class="tier">${player.tier}</td>
-                            <td class="player-id">${playerId || 'N/A'}</td>
                         </tr>
                     `;
                 }).join('')}
