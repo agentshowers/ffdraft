@@ -37,6 +37,37 @@
             padding-bottom: 8px;
         }
         
+        .draft-id-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .draft-id-section label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .draft-id-section input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .draft-id-section input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
         .draft-picks-list {
             max-height: 600px;
             overflow-y: auto;
@@ -200,17 +231,6 @@
             font-family: monospace;
         }
         
-        .tier-1 { border-left: 4px solid #28a745; }
-        .tier-2 { border-left: 4px solid #17a2b8; }
-        .tier-3 { border-left: 4px solid #ffc107; }
-        .tier-4 { border-left: 4px solid #fd7e14; }
-        .tier-5 { border-left: 4px solid #dc3545; }
-        .tier-6 { border-left: 4px solid #6f42c1; }
-        .tier-7 { border-left: 4px solid #e83e8c; }
-        .tier-8 { border-left: 4px solid #6c757d; }
-        .tier-9 { border-left: 4px solid #495057; }
-        .tier-10 { border-left: 4px solid #212529; }
-        
         /* Position-based background colors */
         .position-WR { background-color: rgba(86, 201, 248, 0.8); }
         .position-RB { background-color: rgba(143, 242, 202, 0.8); }
@@ -225,6 +245,13 @@
         <!-- Left Column: Draft Picks -->
         <div class="draft-picks-column">
             <div class="draft-picks-title">Draft Picks</div>
+            
+            <!-- Draft ID Input -->
+            <div class="draft-id-section">
+                <label for="draftIdInput">Draft ID:</label>
+                <input type="text" id="draftIdInput" placeholder="Enter draft ID">
+            </div>
+            
             <div class="draft-picks-list" id="draftPicksList">
                 <div class="draft-pick-item">No picks yet...</div>
             </div>

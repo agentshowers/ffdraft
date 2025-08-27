@@ -1,5 +1,5 @@
-// CONFIGURATION - Change this to your draft ID
-const DRAFT_ID = '1257359414734630912'; 
+// CONFIGURATION - Default draft ID
+let DRAFT_ID = '1257359414734630912'; 
 
 // Global variables
 let playersData = {}; 
@@ -11,6 +11,7 @@ const draftPicksList = document.getElementById('draftPicksList');
 const lastRefreshSpan = document.getElementById('lastRefresh');
 const totalPicksSpan = document.getElementById('totalPicks');
 const positionFilter = document.getElementById('positionFilter');
+const draftIdInput = document.getElementById('draftIdInput');
 
 // Auto-fetch interval (in milliseconds)
 const AUTO_FETCH_INTERVAL = 10000; // 10 seconds
@@ -37,8 +38,37 @@ function initialize() {
     // Set up position filter event listener
     positionFilter.addEventListener('change', displayPlayerRankings);
     
+    // Set up draft ID input
+    draftIdInput.value = DRAFT_ID;
+    draftIdInput.addEventListener('change', handleDraftIdChange);
+    draftIdInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleDraftIdChange();
+        }
+    });
+    
     // Start auto-fetching draft data
     startAutoFetch();
+}
+
+// Handle draft ID change
+function handleDraftIdChange() {
+    const newDraftId = draftIdInput.value.trim();
+    if (newDraftId && newDraftId !== DRAFT_ID) {
+        DRAFT_ID = newDraftId;
+        console.log(`Draft ID changed to: ${DRAFT_ID}`);
+        
+        // Stop current auto-fetch interval
+        if (autoFetchInterval) {
+            clearInterval(autoFetchInterval);
+        }
+        
+        // Clear current data
+        draftPicksData = [];
+        
+        // Start fetching with new draft ID
+        startAutoFetch();
+    }
 }
 
 // Start automatic fetching
@@ -178,10 +208,9 @@ function displayPlayerRankings() {
             </thead>
             <tbody>
                 ${availablePlayers.map(player => {
-                    const tierClass = `tier-${player.tier}`;
                     const positionClass = `position-${player.position}`;
                     return `
-                        <tr class="${tierClass} ${positionClass}">
+                        <tr class="${positionClass}">
                             <td class="rank-number">${player.rank}</td>
                             <td class="player-name">${player.name}</td>
                             <td class="position">${player.position}</td>
