@@ -98,6 +98,35 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
+        .filter-section {
+            margin: 0 0 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .filter-section label {
+            font-weight: 500;
+            margin-right: 10px;
+            color: #333;
+        }
+        
+        .filter-section select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .filter-section select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
         .status {
             margin: 10px 0;
             padding: 10px;
@@ -198,6 +227,20 @@
         
         <!-- Main Content: Rankings -->
         <div class="main-content">
+            <!-- Position Filter -->
+            <div class="filter-section">
+                <label for="positionFilter">Filter by Position:</label>
+                <select id="positionFilter">
+                    <option value="">All Positions</option>
+                    <option value="QB">QB</option>
+                    <option value="RB">RB</option>
+                    <option value="WR">WR</option>
+                    <option value="TE">TE</option>
+                    <option value="K">K</option>
+                    <option value="DEF">DEF</option>
+                </select>
+            </div>
+            
             <div id="playerList"></div>
         </div>
     </div>

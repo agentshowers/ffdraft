@@ -10,6 +10,7 @@ const playerList = document.getElementById('playerList');
 const draftPicksList = document.getElementById('draftPicksList');
 const lastRefreshSpan = document.getElementById('lastRefresh');
 const totalPicksSpan = document.getElementById('totalPicks');
+const positionFilter = document.getElementById('positionFilter');
 
 // Auto-fetch interval (in milliseconds)
 const AUTO_FETCH_INTERVAL = 10000; // 10 seconds
@@ -32,6 +33,9 @@ function initialize() {
     } else {
         console.warn('PLAYERS_RANKINGS not found. Make sure rankings.js is loaded first');
     }
+    
+    // Set up position filter event listener
+    positionFilter.addEventListener('change', displayPlayerRankings);
     
     // Start auto-fetching draft data
     startAutoFetch();
@@ -132,18 +136,27 @@ function getDraftedPlayerIds() {
     return draftPicksData.map(pick => pick.player_id);
 }
 
-// Display player rankings (filtered by drafted players)
+// Display player rankings (filtered by drafted players and position)
 function displayPlayerRankings() {
     if (!PLAYERS_RANKINGS || PLAYERS_RANKINGS.length === 0) {
         playerList.innerHTML = '<p>No rankings data available.</p>';
         return;
     }
 
+    // Get selected position filter
+    const selectedPosition = positionFilter.value;
+    
     // Get list of drafted players
     const draftedPlayerIds = getDraftedPlayerIds();
     
-    // Filter out drafted players
+    // Filter players by position and draft status
     let availablePlayers = PLAYERS_RANKINGS.filter(player => {
+        // Filter by position if selected
+        if (selectedPosition && player.position !== selectedPosition) {
+            return false;
+        }
+        
+        // Filter out drafted players
         const playerId = findPlayerId(player.name);
         if (playerId && draftedPlayerIds.includes(playerId)) {
             return false; // Filter out drafted players
