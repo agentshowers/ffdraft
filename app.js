@@ -7,6 +7,9 @@ let playersData = {};
 // DOM elements
 const statusDiv = document.getElementById('status');
 const playerList = document.getElementById('playerList');
+const draftPicksList = document.getElementById('draftPicksList');
+const lastRefreshSpan = document.getElementById('lastRefresh');
+const totalPicksSpan = document.getElementById('totalPicks');
 
 // Auto-fetch interval (in milliseconds)
 const AUTO_FETCH_INTERVAL = 10000; // 10 seconds
@@ -19,62 +22,114 @@ function initialize() {
         playersData = PLAYERS_DATA;
         console.log(`Loaded ${Object.keys(playersData).length} players from players.js`);
     } else {
-        console.warn('PLAYERS_DATA not found. Make sure players.js is loaded.');
+        console.warn('PLAYERS_DATA not found. Make sure players.js is loaded first');
     }
     
-    // Load rankings data
+    // Load rankings data from the globally loaded PLAYERS_RANKINGS variable
     if (typeof PLAYERS_RANKINGS !== 'undefined') {
         console.log(`Loaded ${PLAYERS_RANKINGS.length} rankings from rankings.js`);
         displayPlayerRankings();
     } else {
-        console.warn('PLAYERS_RANKINGS not found. Make sure rankings.js is loaded.');
+        console.warn('PLAYERS_RANKINGS not found. Make sure rankings.js is loaded first');
     }
     
-    // Start auto-fetching
+    // Start auto-fetching draft data
     startAutoFetch();
 }
 
 // Start automatic fetching
 function startAutoFetch() {
-    // Fetch immediately on page load
-    fetchDraftStatus();
+    // Fetch immediately
+    fetchDraftData();
     
-    // Set up interval for automatic fetching
-    autoFetchInterval = setInterval(fetchDraftStatus, AUTO_FETCH_INTERVAL);
-    console.log(`Auto-fetching enabled every ${AUTO_FETCH_INTERVAL / 1000} seconds`);
+    // Then set up interval
+    autoFetchInterval = setInterval(fetchDraftData, AUTO_FETCH_INTERVAL);
 }
 
-// Stop automatic fetching
-function stopAutoFetch() {
-    if (autoFetchInterval) {
-        clearInterval(autoFetchInterval);
-        autoFetchInterval = null;
-        console.log('Auto-fetching stopped');
+// Fetch draft data from Sleeper API
+async function fetchDraftData() {
+    try {
+        statusDiv.textContent = 'Fetching draft data...';
+        statusDiv.className = 'status loading';
+        
+        const response = await fetch(`https://api.sleeper.app/v1/draft/${DRAFT_ID}/picks`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const draftPicks = await response.json();
+        
+        // Update draft picks display
+        displayDraftPicks(draftPicks);
+        
+        // Hide status after successful fetch
+        statusDiv.style.display = 'none';
+        
+    } catch (error) {
+        console.error('Error fetching draft data:', error);
+        statusDiv.textContent = `Error fetching draft data: ${error.message}`;
+        statusDiv.className = 'status error';
+        statusDiv.style.display = 'block';
     }
 }
 
-// Show status message
-function showStatus(message, type) {
-    statusDiv.textContent = message;
-    statusDiv.className = `status ${type}`;
-    statusDiv.style.display = 'block';
+// Display draft picks in reverse order
+function displayDraftPicks(draftPicks) {
+    if (!draftPicks || draftPicks.length === 0) {
+        draftPicksList.innerHTML = '<div class="draft-pick-item">No picks yet...</div>';
+        // Update footer
+        lastRefreshSpan.textContent = new Date().toLocaleTimeString();
+        totalPicksSpan.textContent = '0';
+        return;
+    }
+    
+    // Sort picks by pick number in reverse order (most recent first)
+    const sortedPicks = draftPicks.sort((a, b) => b.pick_no - a.pick_no);
+    
+    const picksHtml = sortedPicks.map(pick => {
+        const playerId = pick.player_id;
+        const player = playersData[playerId];
+        
+        if (player) {
+            const playerName = `${player.first_name} ${player.last_name}`;
+            const position = player.position;
+            const pickNumber = pick.pick_no;
+            
+            return `
+                <div class="draft-pick-item">
+                    <span class="pick-number">#${pickNumber}</span>
+                    <span class="pick-player">${playerName}</span>
+                    <span class="pick-position">${position}</span>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="draft-pick-item">
+                    <span class="pick-number">#${pick.pick_no}</span>
+                    <span class="pick-player">Unknown Player</span>
+                    <span class="pick-position">ID: ${playerId}</span>
+                </div>
+            `;
+        }
+    }).join('');
+    
+    draftPicksList.innerHTML = picksHtml;
+    
+    // Update footer information
+    lastRefreshSpan.textContent = new Date().toLocaleTimeString();
+    totalPicksSpan.textContent = draftPicks.length.toString();
 }
 
-// Hide status message
-function hideStatus() {
-    statusDiv.style.display = 'none';
-}
-
-// Find player ID by name in players.js data
+// Find player ID by name (for rankings display)
 function findPlayerId(playerName) {
-    // Search through all players to find a match
-    for (const [playerId, player] of Object.entries(playersData)) {
-        const fullName = `${player.first_name} ${player.last_name}`.trim();
+    for (const [id, player] of Object.entries(playersData)) {
+        const fullName = `${player.first_name} ${player.last_name}`;
         if (fullName === playerName) {
-            return playerId;
+            return id;
         }
     }
-    return 'Not found';
+    return null;
 }
 
 // Display player rankings
@@ -100,61 +155,23 @@ function displayPlayerRankings() {
                 ${PLAYERS_RANKINGS.map(player => {
                     const playerId = findPlayerId(player.name);
                     const tierClass = `tier-${player.tier}`;
-                    
-                    return `<tr class="${tierClass}">
-                        <td class="rank-number">${player.rank}</td>
-                        <td class="player-name">${player.name}</td>
-                        <td class="position">${player.position}</td>
-                        <td class="tier">${player.tier}</td>
-                        <td class="player-id">${playerId}</td>
-                    </tr>`;
+                    return `
+                        <tr class="${tierClass}">
+                            <td class="rank-number">${player.rank}</td>
+                            <td class="player-name">${player.name}</td>
+                            <td class="position">${player.position}</td>
+                            <td class="tier">${player.tier}</td>
+                            <td class="player-id">${playerId || 'N/A'}</td>
+                        </tr>
+                    `;
                 }).join('')}
             </tbody>
         </table>
     `;
-
-    playerList.innerHTML = tableHtml;
-    showStatus(`Successfully loaded ${PLAYERS_RANKINGS.length} player rankings!`, 'success');
     
-    // Hide status after 3 seconds
-    setTimeout(hideStatus, 3000);
+    playerList.innerHTML = tableHtml;
 }
 
-// Fetch draft picks from Sleeper API
-async function fetchDraftStatus() {
-    showStatus('Fetching draft status...', 'loading');
-
-    try {
-        const response = await fetch(`https://api.sleeper.app/v1/draft/${DRAFT_ID}/picks`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const picks = await response.json();
-        
-        if (!Array.isArray(picks)) {
-            throw new Error('Invalid response format');
-        }
-
-        showStatus(`Successfully loaded ${picks.length} picks! Last updated: ${new Date().toLocaleTimeString()}`, 'success');
-
-        // Hide status after 3 seconds
-        setTimeout(hideStatus, 3000);
-
-    } catch (error) {
-        console.error('Error fetching draft status:', error);
-        showStatus(`Error: ${error.message}`, 'error');
-    }
-}
-
-// Event listeners and initialization
-document.addEventListener('DOMContentLoaded', function() {
-    initialize();
-});
-
-// Clean up interval when page is unloaded
-window.addEventListener('beforeunload', function() {
-    stopAutoFetch();
-});
+// Start the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', initialize);
 

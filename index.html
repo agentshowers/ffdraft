@@ -7,10 +7,95 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
+            margin: 0;
             padding: 20px;
             background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .draft-picks-column {
+            width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .draft-picks-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 8px;
+        }
+        
+        .draft-picks-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .draft-picks-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .footer-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .footer-label {
+            font-weight: 500;
+        }
+        
+        .footer-value {
+            color: #007bff;
+        }
+        
+        .draft-pick-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        .draft-pick-item:last-child {
+            border-bottom: none;
+        }
+        
+        .pick-number {
+            font-weight: bold;
+            color: #007bff;
+            margin-right: 8px;
+        }
+        
+        .pick-player {
+            font-weight: 500;
+        }
+        
+        .pick-position {
+            color: #666;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .main-content {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .status {
@@ -24,109 +109,101 @@
             color: #856404;
         }
         
-        .status.success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
         .status.error {
             background-color: #f8d7da;
             color: #721c24;
         }
         
-        .player-rankings {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
         .rankings-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .rankings-table th,
+        .rankings-table td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         
         .rankings-table th {
             background-color: #f8f9fa;
-            padding: 12px 8px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
             font-weight: bold;
-            color: #495057;
-        }
-        
-        .rankings-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #dee2e6;
-            vertical-align: middle;
+            color: #333;
         }
         
         .rankings-table tr:hover {
-            background-color: #f8f9fa;
+            background-color: #f5f5f5;
         }
         
         .rank-number {
-            font-weight: bold;
-            color: #495057;
-            text-align: center;
             width: 50px;
+            text-align: center;
+            font-weight: bold;
         }
         
         .player-name {
             font-weight: bold;
-            color: #212529;
         }
         
         .position {
-            color: #6c757d;
-            text-align: center;
             width: 60px;
+            text-align: center;
         }
         
         .tier {
-            text-align: center;
             width: 50px;
+            text-align: center;
             font-weight: bold;
         }
         
         .player-id {
-            color: #999;
-            font-family: monospace;
-            font-size: 12px;
-            text-align: center;
             width: 100px;
+            text-align: center;
+            font-family: monospace;
         }
         
-        .tier-1 { border-left: 4px solid #dc3545; }
-        .tier-2 { border-left: 4px solid #fd7e14; }
+        .tier-1 { border-left: 4px solid #28a745; }
+        .tier-2 { border-left: 4px solid #17a2b8; }
         .tier-3 { border-left: 4px solid #ffc107; }
-        .tier-4 { border-left: 4px solid #28a745; }
-        .tier-5 { border-left: 4px solid #17a2b8; }
+        .tier-4 { border-left: 4px solid #fd7e14; }
+        .tier-5 { border-left: 4px solid #dc3545; }
         .tier-6 { border-left: 4px solid #6f42c1; }
         .tier-7 { border-left: 4px solid #e83e8c; }
         .tier-8 { border-left: 4px solid #6c757d; }
         .tier-9 { border-left: 4px solid #495057; }
         .tier-10 { border-left: 4px solid #212529; }
-        .tier-11 { border-left: 4px solid #6c757d; }
-        .tier-12 { border-left: 4px solid #6c757d; }
-        .tier-13 { border-left: 4px solid #6c757d; }
-        .tier-14 { border-left: 4px solid #6c757d; }
-        .tier-15 { border-left: 4px solid #6c757d; }
-        .tier-16 { border-left: 4px solid #6c757d; }
     </style>
 </head>
 <body>
-    <div class="player-rankings">
-        <h3>FantasyPros 2025 Draft Rankings</h3>
-        <div id="status" class="status" style="display: none;"></div>
-        <div id="playerList">
-            <p>Loading player rankings...</p>
+    <div class="container">
+        <!-- Left Column: Draft Picks -->
+        <div class="draft-picks-column">
+            <div class="draft-picks-title">Draft Picks</div>
+            <div class="draft-picks-list" id="draftPicksList">
+                <div class="draft-pick-item">No picks yet...</div>
+            </div>
+            <div class="draft-picks-footer">
+                <div class="footer-item">
+                    <span class="footer-label">Last Refresh:</span>
+                    <span class="footer-value" id="lastRefresh">N/A</span>
+                </div>
+                <div class="footer-item">
+                    <span class="footer-label">Total Picks:</span>
+                    <span class="footer-value" id="totalPicks">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content: Rankings -->
+        <div class="main-content">
+            <h2>FantasyPros 2025 Draft Rankings</h2>
+            <div id="status" class="status loading">Loading player rankings...</div>
+            <div id="playerList"></div>
         </div>
     </div>
 
-    <!-- Load player data first, then rankings, then the main app -->
     <script src="players.js"></script>
     <script src="rankings.js"></script>
     <script src="app.js"></script>
