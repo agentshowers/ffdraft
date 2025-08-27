@@ -94,9 +94,10 @@ function displayDraftPicks() {
             const playerName = `${player.first_name} ${player.last_name}`;
             const position = player.position;
             const pickNumber = pick.pick_no;
+            const positionClass = `position-${position}`;
             
             return `
-                <div class="draft-pick-item">
+                <div class="draft-pick-item ${positionClass}">
                     <span class="pick-number">#${pickNumber}</span>
                     <span class="pick-player">${playerName}</span>
                     <span class="pick-position">${position}</span>
@@ -180,8 +181,9 @@ function displayPlayerRankings() {
                 ${availablePlayers.map(player => {
                     const playerId = findPlayerId(player.name);
                     const tierClass = `tier-${player.tier}`;
+                    const positionClass = `position-${player.position}`;
                     return `
-                        <tr class="${tierClass}">
+                        <tr class="${tierClass} ${positionClass}">
                             <td class="rank-number">${player.rank}</td>
                             <td class="player-name">${player.name}</td>
                             <td class="position">${player.position}</td>
