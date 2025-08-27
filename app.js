@@ -14,7 +14,7 @@ const positionFilter = document.getElementById('positionFilter');
 const draftIdInput = document.getElementById('draftIdInput');
 
 // Auto-fetch interval (in milliseconds)
-const AUTO_FETCH_INTERVAL = 10000; // 10 seconds
+const AUTO_FETCH_INTERVAL = 5000; // 5 seconds
 let autoFetchInterval;
 
 // Initialize
