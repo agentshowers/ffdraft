@@ -1,5 +1,13 @@
 // CONFIGURATION - Default draft ID
-let DRAFT_ID = '1257359414734630912'; 
+let DRAFT_ID = '1257359414734630912';
+
+// FAVORITES - Add player names here (must match exactly with rankings)
+const FAVORITES = [
+    'Bo Nix',
+    'Courtland Sutton',
+    'Jacory Croskey-Merritt'
+    // Add more favorite players here
+]; 
 
 // Global variables
 let playersData = {}; 
@@ -209,10 +217,12 @@ function displayPlayerRankings() {
             <tbody>
                 ${availablePlayers.map(player => {
                     const positionClass = `position-${player.position}`;
+                    const isFavorite = FAVORITES.includes(player.name);
+                    const starIcon = isFavorite ? '⭐ ' : '';
                     return `
                         <tr class="${positionClass}">
                             <td class="rank-number">${player.rank}</td>
-                            <td class="player-name">${player.name}</td>
+                            <td class="player-name">${starIcon}${player.name}</td>
                             <td class="position">${player.position}</td>
                             <td class="tier">${player.tier}</td>
                         </tr>
